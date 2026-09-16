@@ -12,36 +12,54 @@ spec:
     metadata:
       labels:
         app: autocare-api
-      annotations:
         azure.workload.identity/use: "true"
     spec:
       serviceAccountName: autocare-api
       containers:
-        - name: api
+        - name: autocare-api
           image: acrazureproject.azurecr.io/autocare-api:v1
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
+              protocol: TCP
+
           envFrom:
             - configMapRef:
                 name: autocare-api-config
             - secretRef:
                 name: autocare-api-secrets
+
           volumeMounts:
             - name: secrets-store
               mountPath: /mnt/secrets-store
               readOnly: true
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
           readinessProbe:
             httpGet:
               path: /api/health
               port: 3000
-            initialDelaySeconds: 5
+            initialDelaySeconds: 10
             periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
           livenessProbe:
             httpGet:
               path: /api/health
               port: 3000
-            initialDelaySeconds: 10
+            initialDelaySeconds: 30
             periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+
       volumes:
         - name: secrets-store
           csi:

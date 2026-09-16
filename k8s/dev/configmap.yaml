@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: autocare-api-config
+  namespace: dev
+data:
+  PORT: "3000"
+  NODE_ENV: "production"
+  FRONTEND_ORIGIN: "/autocare"
+  MAINTENANCE_SERVICE_URL: "http://autocare-maintenance-service:8001"
+  MAINTENANCE_SERVICE_TIMEOUT_MS: "5000"
+  DATABASE_PROVIDER: "azure-sql"
+  DATABASE_HOST: "sql-azure-project.database.windows.net"
+  DATABASE_PORT: "1433"
+  DATABASE_NAME: "sqldb-autocare-dev"
+  DATABASE_ENCRYPT: "true"
+  DATABASE_TRUST_SERVER_CERTIFICATE: "false"
+  DATABASE_USER: "sqladmin"
