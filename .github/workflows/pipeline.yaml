@@ -104,6 +104,8 @@ jobs:
             -strict \
             -summary \
             -kubernetes-version 1.35.7 \
+            -schema-location default \
+            -schema-location "/work/schemas/{{.ResourceKind}}.json" \
             "k8s/${ENVIRONMENT}/"
 
       - name: Verify Dockerfile
