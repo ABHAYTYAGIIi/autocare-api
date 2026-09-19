@@ -17,7 +17,7 @@ spec:
       serviceAccountName: autocare-api
       containers:
         - name: autocare-api
-          image: acrazureproject.azurecr.io/autocare-api
+          image: IMAGE_PLACEHOLDER
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
