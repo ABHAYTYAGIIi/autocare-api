@@ -1,3 +1,4 @@
+# Promotion merge-resolution marker: main history incorporated before UAT promotion.
 name: AutoCare API CI/CD
 
 on:
@@ -435,7 +436,6 @@ jobs:
           kubectl get pods \
             -n "${ENVIRONMENT}" \
             -l app=autocare-api
-
 
       - name: Cleanup kubeconfig
         if: always()
