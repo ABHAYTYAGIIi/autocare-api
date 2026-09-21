@@ -103,7 +103,7 @@ jobs:
             ghcr.io/yannh/kubeconform:v0.8.0 \
             -strict \
             -summary \
-            -kubernetes-version 1.35.7 \
+            -kubernetes-version 1.35.8 \
             -schema-location "/work/schemas/{{.ResourceKind}}.json" \
             -schema-location default \
             "k8s/${ENVIRONMENT}/"
