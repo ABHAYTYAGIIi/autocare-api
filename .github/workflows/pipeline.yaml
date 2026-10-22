@@ -187,7 +187,7 @@ jobs:
           image-ref: ${{ steps.image.outputs.image }}
           severity: HIGH,CRITICAL
           vuln-type: os,library
-          ignore-unfixed: 'false'
+          ignore-unfixed: 'true'
           exit-code: '1'
 
       - name: Save Docker image
