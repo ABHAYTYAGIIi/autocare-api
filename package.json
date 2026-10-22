@@ -12,6 +12,6 @@
     "cors": "latest",
     "dotenv": "latest",
     "express": "latest",
-    "mssql": "latest"
+    "pg": "8.16.3"
   }
 }

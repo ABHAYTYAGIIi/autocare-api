@@ -1,7 +1,7 @@
 import { createRepository } from "./repositoryFactory.js";
 
 export const vehicleRepository = createRepository({
-  table: "[dbo].[vehicles]",
+  table: "public.vehicles",
   columns: [
     { property: "id", column: "id" }, { property: "customerId", column: "customer_id" },
     { property: "make", column: "make" }, { property: "model", column: "model" },

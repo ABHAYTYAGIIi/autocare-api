@@ -1,7 +1,7 @@
 import { createRepository } from "./repositoryFactory.js";
 
 export const bookingRepository = createRepository({
-  table: "[dbo].[bookings]",
+  table: "public.bookings",
   columns: [
     { property: "id", column: "id" }, { property: "customerId", column: "customer_id" },
     { property: "vehicleId", column: "vehicle_id" }, { property: "serviceCenterId", column: "service_center_id" },

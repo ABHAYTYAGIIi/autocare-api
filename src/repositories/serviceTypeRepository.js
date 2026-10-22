@@ -1,7 +1,7 @@
 import { createRepository } from "./repositoryFactory.js";
 
 export const serviceTypeRepository = createRepository({
-  table: "[dbo].[service_types]",
+  table: "public.service_types",
   columns: [
     { property: "id", column: "id" }, { property: "name", column: "name" },
     { property: "description", column: "description" },

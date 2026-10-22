@@ -4,8 +4,6 @@ name: AutoCare API CI/CD
 on:
   push:
     branches:
-      - dev
-      - uat
       - main
 
 permissions:
@@ -22,7 +20,7 @@ jobs:
   # ============================================================
   validate:
     name: Stage 1 - Validate
-    runs-on: autocare-api
+    runs-on: ubuntu-latest
     timeout-minutes: 10
 
     permissions:
@@ -61,7 +59,7 @@ jobs:
   k8s-validation:
     name: Stage 2 - Kubernetes Validation
     needs: validate
-    runs-on: autocare-api
+    runs-on: ubuntu-latest
     timeout-minutes: 10
 
     permissions:
@@ -74,21 +72,7 @@ jobs:
       - name: Determine Kubernetes environment
         id: environment
         run: |
-          case "${GITHUB_REF_NAME}" in
-            dev)
-              ENVIRONMENT=dev
-              ;;
-            uat)
-              ENVIRONMENT=uat
-              ;;
-            main)
-              ENVIRONMENT=prod
-              ;;
-            *)
-              echo "Unsupported branch: ${GITHUB_REF_NAME}"
-              exit 1
-              ;;
-          esac
+          ENVIRONMENT=dev
 
           echo "Branch: ${GITHUB_REF_NAME}"
           echo "Environment: ${ENVIRONMENT}"
@@ -135,7 +119,7 @@ jobs:
   build-image:
     name: Stage 3 - Build Image
     needs: k8s-validation
-    runs-on: autocare-api
+    runs-on: ubuntu-latest
     timeout-minutes: 20
 
     permissions:
@@ -151,21 +135,7 @@ jobs:
       - name: Determine environment
         id: environment
         run: |
-          case "${GITHUB_REF_NAME}" in
-            dev)
-              ENVIRONMENT=dev
-              ;;
-            uat)
-              ENVIRONMENT=uat
-              ;;
-            main)
-              ENVIRONMENT=prod
-              ;;
-            *)
-              echo "Unsupported branch: ${GITHUB_REF_NAME}"
-              exit 1
-              ;;
-          esac
+          ENVIRONMENT=dev
 
           echo "Branch: ${GITHUB_REF_NAME}"
           echo "Environment: ${ENVIRONMENT}"
@@ -202,11 +172,11 @@ jobs:
   deploy:
     name: Stage 4 - Deploy to AKS
     needs: build-image
-    runs-on: autocare-api
+    runs-on: ubuntu-latest
     timeout-minutes: 20
 
-    environment:
-      name: ${{ needs.build-image.outputs.environment }}
+    # environment:
+    #   name: ${{ needs.build-image.outputs.environment }}
 
     concurrency:
       group: api-deploy-${{ needs.build-image.outputs.environment }}
@@ -284,12 +254,6 @@ jobs:
             --name "${AKS_CLUSTER_NAME}" \
             --overwrite-existing
 
-      - name: Configure kubelogin
-        env:
-          KUBECONFIG: ${{ runner.temp }}/kubeconfig
-        run: |
-          kubelogin convert-kubeconfig -l azurecli
-
       - name: Render Kubernetes manifests
         env:
           ENVIRONMENT: ${{ needs.build-image.outputs.environment }}
@@ -354,7 +318,7 @@ jobs:
   verify:
     name: Stage 5 - Independent Verify
     needs: deploy
-    runs-on: autocare-api
+    runs-on: ubuntu-latest
     timeout-minutes: 10
 
     permissions:
@@ -365,21 +329,7 @@ jobs:
       - name: Determine Kubernetes environment
         id: environment
         run: |
-          case "${GITHUB_REF_NAME}" in
-            dev)
-              ENVIRONMENT=dev
-              ;;
-            uat)
-              ENVIRONMENT=uat
-              ;;
-            main)
-              ENVIRONMENT=prod
-              ;;
-            *)
-              echo "Unsupported branch: ${GITHUB_REF_NAME}"
-              exit 1
-              ;;
-          esac
+          ENVIRONMENT=dev
 
           echo "Branch: ${GITHUB_REF_NAME}"
           echo "Environment: ${ENVIRONMENT}"
@@ -402,12 +352,6 @@ jobs:
             --resource-group "${AZURE_RESOURCE_GROUP}" \
             --name "${AKS_CLUSTER_NAME}" \
             --overwrite-existing
-
-      - name: Configure kubelogin
-        env:
-          KUBECONFIG: ${{ runner.temp }}/kubeconfig
-        run: |
-          kubelogin convert-kubeconfig -l azurecli
 
       - name: Verify rollout
         env:

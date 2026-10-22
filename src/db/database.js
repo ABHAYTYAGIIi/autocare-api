@@ -6,8 +6,8 @@ export function getDatabaseConfiguration() {
 }
 
 export function getSqlConnectionConfiguration() {
-  const { provider, host, port, name, user, password, encrypt, trustServerCertificate } = environment.database;
-  if (provider !== "azure-sql") return null;
+  const { provider, host, port, name, user, password, ssl } = environment.database;
+  if (provider !== "postgres") return null;
 
   const missing = [
     ["DATABASE_HOST", host],
@@ -17,15 +17,15 @@ export function getSqlConnectionConfiguration() {
   ].filter(([, value]) => !value).map(([name]) => name);
 
   if (missing.length) {
-    throw new Error(`DATABASE_PROVIDER=azure-sql requires: ${missing.join(", ")}.`);
+    throw new Error(`DATABASE_PROVIDER=postgres requires: ${missing.join(", ")}.`);
   }
 
   return {
-    server: host,
+    host,
     port,
     database: name,
     user,
     password,
-    options: { encrypt, trustServerCertificate }
+    ssl: ssl ? { rejectUnauthorized: true } : false
   };
 }
