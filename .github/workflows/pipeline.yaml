@@ -299,17 +299,41 @@ jobs:
         env:
           ENVIRONMENT: ${{ needs.build-image.outputs.environment }}
           IMAGE: ${{ steps.image.outputs.image }}
+          AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+          AKS_CLUSTER_NAME: ${{ vars.AKS_CLUSTER_NAME }}
         run: |
           rm -rf "${RUNNER_TEMP}/rendered"
           mkdir -p "${RUNNER_TEMP}/rendered"
 
           cp -R "k8s/${ENVIRONMENT}/." "${RUNNER_TEMP}/rendered/"
 
+          KUBELET_CLIENT_ID=$(az aks show \
+            --resource-group "${AZURE_RESOURCE_GROUP}" \
+            --name "${AKS_CLUSTER_NAME}" \
+            --query identityProfile.kubeletidentity.clientId \
+            --output tsv)
+
+          if [ -z "${KUBELET_CLIENT_ID}" ]; then
+            echo "ERROR: Could not resolve the AKS kubelet client ID."
+            exit 1
+          fi
+
           sed -i "s|IMAGE_PLACEHOLDER|${IMAGE}|g" \
             "${RUNNER_TEMP}/rendered/deployment.yaml"
 
+          sed -i "s|KUBELET_CLIENT_ID_PLACEHOLDER|${KUBELET_CLIENT_ID}|g" \
+            "${RUNNER_TEMP}/rendered/secretproviderclass.yaml"
+
+          if grep -R -n "_PLACEHOLDER" "${RUNNER_TEMP}/rendered/"; then
+            echo "ERROR: Unresolved placeholder found in rendered manifests."
+            exit 1
+          fi
+
           echo "Rendered deployment manifest:"
           cat "${RUNNER_TEMP}/rendered/deployment.yaml"
+
+          echo "Rendered SecretProviderClass:"
+          cat "${RUNNER_TEMP}/rendered/secretproviderclass.yaml"
 
       - name: Apply Kubernetes manifests
         env:
